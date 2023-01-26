@@ -6,6 +6,7 @@ import numpy as np
 from torch.utils.data import Dataset
 from tqdm import tqdm
 from sklearn.preprocessing import QuantileTransformer
+from multiprocessing import cpu_count, Pool
 
 class IrradianceDataset(Dataset):
     def __init__(self, dates, image_folder, irradiance_file, channel='0211', scaler=None, forecast_horizon_hours=0):
@@ -17,7 +18,10 @@ class IrradianceDataset(Dataset):
         self.channel = channel
         self.forecast_horizon_hours = forecast_horizon_hours
         print('Checking available data...')
-        self.dates = [date for date in tqdm(self.dates) if self.check_date(date)]
+        with Pool(cpu_count()) as pool:
+            check_dates = list(pool.map(self.check_date, self.dates))
+        self.dates = sorted([date for check, date in check_dates if check])
+#         self.dates = [date for date in tqdm(self.dates) if self.check_date(date)]
         self.irradiance_data = self.irradiance_data.loc[self.dates,:]
         if scaler is None:
             self.scaler = QuantileTransformer(n_quantiles=1000)
@@ -43,12 +47,12 @@ class IrradianceDataset(Dataset):
         image_file_name = self.get_file_name(image_date)
         
         if not os.path.exists(image_file_name):
-            return False
+            return False, date
         try:
             irradiance_datum = self.irradiance_data.loc[date]
         except:
-            return False
-        return True
+            return False, date
+        return True, date
         
     def load_image(self, file_path):
         with open(file_path, 'rb') as f:
