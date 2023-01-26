@@ -11,7 +11,6 @@ import tqdm
 
 class IrradianceDataset(Dataset):
     def __init__(self, dates, image_folder, irradiance_file, channel='0211', scaler=None, forecast_horizon_hours=0):
-
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
         self.irradiance_data = self.irradiance_data.loc[(self.irradiance_data>=1).all(axis=1)]
