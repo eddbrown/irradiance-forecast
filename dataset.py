@@ -13,10 +13,9 @@ class IrradianceDataset(Dataset):
     def __init__(self, dates, image_folder, irradiance_file, channel='0211', scaler=None, forecast_horizon_hours=0):
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
-        self.irradiance_data = self.irradiance_data.loc[(self.irradiance_data>=1).all(axis=1)]
-        self.irradiance_data.index = pd.to_datetime(self.irradiance_data['all__dates_datetime__'])
-        self.irradiance_data.drop(columns=['all__dates_datetime__'], inplace=True)
+
         # Remove outliers
+        self.irradiance_data = self.irradiance_data.loc[(self.irradiance_data>=1).all(axis=1)]
         medians = self.irradiance_data.median()
         for i, column in enumerate(self.irradiance_data.columns):
             self.irradiance_data = self.irradiance_data[self.irradiance_data[column] < 1000 * medians[i]]
