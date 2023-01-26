@@ -28,7 +28,7 @@ from tqdm import tqdm
 from git import Repo
 from split_dataset import split_dataset
 from evaluate_model import evaluate_model
-
+import numpy as np
 
 def train():
     repo = Repo()
@@ -138,6 +138,7 @@ def train():
     dataloader = DataLoader(train_dataset, batch_size=config.batch_size, num_workers=config.num_workers, drop_last=True, shuffle=True)
     print("Starting Training Loop...")
     # For each epoch
+    best_validation_loss = np.inf
     for epoch in range(config.num_epochs):
         for i, data in enumerate(tqdm(dataloader)):
             model.zero_grad()
@@ -149,27 +150,31 @@ def train():
             losses.append(loss.item())
             wandb.log({'loss': loss.item()})
             
-            if i % 100 == 0:
 
-                validation_results = evaluate_model(model,
-                                                    validation_dataset,
-                                                    config.batch_size,
-                                                    device,
-                                                    config.num_workers
-                                                   )
+        validation_results = evaluate_model(model,
+                                            validation_dataset,
+                                            config.batch_size,
+                                            device,
+                                            config.num_workers)
 
-                test_results = evaluate_model(model,
-                                              test_dataset,
-                                              config.batch_size,
-                                              device,
-                                              config.num_workers)
+        test_results = evaluate_model(model,
+                                      test_dataset,
+                                      config.batch_size,
+                                      device,
+                                      config.num_workers)
+        
 
-                wandb.log({'validation_results': validation_results})
-                wandb.log({'test_results': test_results})
-                torch.save(
-                    {'model': model.state_dict()},
-                    os.path.join(checkpoint_folder, f'checkpoint_{epoch}_{i}')
-                )
+        wandb.log({'validation_results': validation_results})
+        wandb.log({'test_results': test_results})
+        torch.save(
+            {'model': model.state_dict()},
+            os.path.join(checkpoint_folder, f'checkpoint_{epoch}_{i}')
+        )
+        if validation_results['loss'] < best_validation_loss:
+            best_validation_loss = validation_results['loss']
+            wandb.log({'best_validation_loss': best_validation_loss})
+            wandb.log({'reported_test_loss': test_results['loss']})
+            wandb.log({'reported_test_results': test_results})
 
 
             
