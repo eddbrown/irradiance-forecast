@@ -4,7 +4,7 @@ from torch import nn
 import torch
 
 class IrradianceRegressor(nn.Module):
-    def __init__(self, hidden_layer_size=100, output_size=10):
+    def __init__(self, hidden_layer_size=100, output_size=23):
         super(IrradianceRegressor, self).__init__()
         self.hidden_layer_size = hidden_layer_size
         self.image_dims = 224
@@ -19,14 +19,14 @@ class IrradianceRegressor(nn.Module):
             nn.Linear(hidden_layer_size, self.output_size),
             nn.LeakyReLU(),
         )
-        self.positions = torch.Tensor(self.positional_encoding())
+        self.positions = nn.Parameter(self.positional_encoding())
         
     def forward(self, images):
         batch_size = images.shape[0]
         resized_image = self.resize(images)
         position_encoding = torch.stack(batch_size * [self.positions])
-        three_channel = torch.cat([position_encoding, resized_image], dim=1)
-        features = self.pretrained_model.forward_features(three_channel)
+        three_channel = torch.cat([resized_image, resized_image, resized_image], dim=1)
+        features = self.pretrained_model.forward_features(three_channel)[:,-1,:]
         fc_output = self.fc(features)
         return fc_output
     

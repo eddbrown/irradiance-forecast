@@ -8,14 +8,14 @@ from tqdm import tqdm
 from sklearn.preprocessing import QuantileTransformer
 
 class IrradianceDataset(Dataset):
-    def __init__(self, image_folder, irradiance_file, channel='0211', scaler=None):
-        self.dates = list(pd.date_range(start='2010-05-01', end='2010-12-31', freq='30T'))
+    def __init__(self, dates, image_folder, irradiance_file, channel='0211', scaler=None, forecast_horizon_hours=0):
+
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
         self.irradiance_data = self.irradiance_data.loc[(self.irradiance_data>=1).all(axis=1)]
-
+        self.dates = dates
         self.channel = channel
-        self.time_delay_hours = 96
+        self.forecast_horizon_hours = forecast_horizon_hours
         print('Checking available data...')
         self.dates = [date for date in tqdm(self.dates) if self.check_date(date)]
         self.irradiance_data = self.irradiance_data.loc[self.dates,:]
@@ -32,14 +32,14 @@ class IrradianceDataset(Dataset):
     
     def __getitem__(self, i):
         forecast_date = self.dates[i]
-        image_date = forecast_date - pd.Timedelta(hours=self.time_delay_hours)
+        image_date = forecast_date - pd.Timedelta(hours=self.forecast_horizon_hours)
         image_file_name = self.get_file_name(image_date)
         irradiance_data = torch.FloatTensor(self.scaled_irradiance_data[i])
        
         return self.load_image(image_file_name), irradiance_data
     
     def check_date(self, date):
-        image_date = date - pd.Timedelta(hours=self.time_delay_hours)
+        image_date = date - pd.Timedelta(hours=self.forecast_horizon_hours)
         image_file_name = self.get_file_name(image_date)
         
         if not os.path.exists(image_file_name):
@@ -70,8 +70,3 @@ class IrradianceDataset(Dataset):
         minute = str(date.minute).zfill(2)
         file_path = f'{self.image_folder}/{year}/{month}/{day}/AIA{year}{month}{day}_{hour}{minute}_{self.channel}.npz'
         return file_path
-    
-image_folder = "/data/hpcdata/users/edbrown41/SDOMLnpz256"
-irradiance_data_file = "/data/hpcdata/users/edbrown41/stan_bands.h5"
-dataset = IrradianceDataset(image_folder, irradiance_data_file)
-print(dataset.__getitem__(0))
