@@ -20,10 +20,8 @@ class IrradianceDataset(Dataset):
         self.forecast_horizon_hours = forecast_horizon_hours
         print('Checking available data...')
         with Pool(cpu_count()) as pool:
-#             check_dates = list(pool.map(self.check_date, self.dates))
-            check_dates = list(tqdm.tqdm(pool.imap(self.check_date, self.dates), total=len(self.dates)))
+            check_dates = list(pool.map(self.check_date, self.dates))
         self.dates = sorted([date for check, date in check_dates if check])
-#         self.dates = [date for date in tqdm(self.dates) if self.check_date(date)]
         self.irradiance_data = self.irradiance_data.loc[self.dates,:]
         if scaler is None:
             self.scaler = QuantileTransformer(n_quantiles=1000)
