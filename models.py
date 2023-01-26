@@ -25,7 +25,7 @@ class IrradianceRegressor(nn.Module):
         batch_size = images.shape[0]
         resized_image = self.resize(images)
         position_encoding = torch.stack(batch_size * [self.positions])
-        three_channel = torch.cat([positional_encoding, resized_image], dim=1)
+        three_channel = torch.cat([self.positional_encoding, resized_image], dim=1)
         features = self.pretrained_model.forward_features(three_channel)[:,-1,:]
         fc_output = self.fc(features)
         return fc_output
