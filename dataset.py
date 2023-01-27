@@ -10,9 +10,10 @@ from multiprocessing import cpu_count, Pool
 import tqdm
 
 class IrradianceDataset(Dataset):
-    def __init__(self, dates, image_folder, irradiance_file, channel='0211', scaler=None, forecast_horizon_hours=0):
+    def __init__(self, dates, image_folder, irradiance_file, channel='0211', scaler=None, forecast_horizon_hours=0. flip_augment=False):
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
+        self.flip_augment = flip_augment
 
         # Remove outliers
         self.irradiance_data = self.irradiance_data.loc[(self.irradiance_data>=1).all(axis=1)]
@@ -61,6 +62,9 @@ class IrradianceDataset(Dataset):
     def load_image(self, file_path):
         with open(file_path, 'rb') as f:
             image = np.load(f)['x']
+        if self.flip_augment:
+            if np.random.choice([True, False]):
+                image = np.flipud(image)
         image = self.scale(image)
         return torch.Tensor(image).unsqueeze(0)
     

@@ -57,6 +57,7 @@ def train():
     parser.add_argument('--checkpoint', default='', type=str)
     parser.add_argument('--weight_decay', default=0, type=float)
     parser.add_argument('--forecast_horizon_hours', default=0, type=int)
+    parser.add_argument('--flip_augment', action='store_true')
     
     config = parser.parse_args()
     config.git_hash = repo.head.object.hexsha
@@ -97,7 +98,8 @@ def train():
         train_dates,
         config.image_folder,
         config.irradiance_data_file,
-        forecast_horizon_hours = config.forecast_horizon_hours
+        forecast_horizon_hours=config.forecast_horizon_hours,
+        flip_augment=config.flip_augment
     )
     
     validation_dataset = IrradianceDataset(
