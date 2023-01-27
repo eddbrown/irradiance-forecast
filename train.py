@@ -73,7 +73,6 @@ def train():
     
     print(config)
     wandb.run.name = specific_run_name
-    wandb.run.save()
     
     # Half the memory of float64
     torch.set_default_dtype(torch.float32)
