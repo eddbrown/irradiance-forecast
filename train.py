@@ -106,7 +106,7 @@ def train():
         validation_dates,
         config.image_folder,
         config.irradiance_data_file,
-        forecast_horizon_hours = config.forecast_horizon_hours,
+        forecast_horizon_hours=config.forecast_horizon_hours,
         scaler = train_dataset.scaler
     )
     
@@ -114,7 +114,7 @@ def train():
         test_dates,
         config.image_folder,
         config.irradiance_data_file,
-        forecast_horizon_hours = config.forecast_horizon_hours,
+        forecast_horizon_hours=config.forecast_horizon_hours,
         scaler = train_dataset.scaler
     )
 
@@ -164,13 +164,15 @@ def train():
                                       device,
                                       config.num_workers)
         
-
+        wandb.log({'validation_loss': validation_results['loss']})
         wandb.log({'validation_results': validation_results})
         wandb.log({'test_results': test_results})
+                  
         torch.save(
             {'model': model.state_dict()},
             os.path.join(checkpoint_folder, f'checkpoint_{epoch}_{i}')
         )
+                  
         if validation_results['loss'] < best_validation_loss:
             best_validation_loss = validation_results['loss']
             wandb.log({'best_validation_loss': best_validation_loss})

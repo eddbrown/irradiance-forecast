@@ -10,7 +10,7 @@ from multiprocessing import cpu_count, Pool
 import tqdm
 
 class IrradianceDataset(Dataset):
-    def __init__(self, dates, image_folder, irradiance_file, channel='0211', scaler=None, forecast_horizon_hours=0. flip_augment=False):
+    def __init__(self, dates, image_folder, irradiance_file, channel='0211', scaler=None, forecast_horizon_hours=0, flip_augment=False):
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
         self.flip_augment = flip_augment
