@@ -71,7 +71,7 @@ class IrradianceDataset(Dataset):
     def scale(self, image):
         if self.channel == '0211':
             image = np.log(np.clip(image, 1, 20000))
-            image = (image - np.log(1))/(np.log(20000) - np.log(0.1))
+            image = (image - np.log(1))/(np.log(20000) - np.log(1))
         elif self.channel == '0094':
             image = np.log(np.clip(image, 1, 300))
             image = (image - np.log(1))/(np.log(300) - np.log(1))

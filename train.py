@@ -99,6 +99,7 @@ def train():
         train_dates,
         config.image_folder,
         config.irradiance_data_file,
+        channel=config.channel,
         forecast_horizon_hours=config.forecast_horizon_hours,
         flip_augment=config.flip_augment
     )
@@ -107,6 +108,7 @@ def train():
         validation_dates,
         config.image_folder,
         config.irradiance_data_file,
+        channel=config.channel,
         forecast_horizon_hours=config.forecast_horizon_hours,
         scaler = train_dataset.scaler
     )
@@ -115,6 +117,7 @@ def train():
         test_dates,
         config.image_folder,
         config.irradiance_data_file,
+        channel=config.channel,
         forecast_horizon_hours=config.forecast_horizon_hours,
         scaler = train_dataset.scaler
     )
