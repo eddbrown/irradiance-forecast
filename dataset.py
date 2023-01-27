@@ -78,6 +78,9 @@ class IrradianceDataset(Dataset):
         elif self.channel == '0335':
             image = np.log(np.clip(image, 1, 2000))
             image = (image - np.log(1))/(np.log(2000) - np.log(1))
+        elif channel == '1600':
+            image = np.log(np.clip(image, 1, 3000))
+            image = (image - np.log(1))/(np.log(3000) - np.log(1))
         return image
         
     def get_file_name(self, date):
