@@ -58,10 +58,12 @@ def train():
     parser.add_argument('--weight_decay', default=0, type=float)
     parser.add_argument('--forecast_horizon_hours', default=0, type=int)
     parser.add_argument('--flip_augment', action='store_true')
-    parser.add_argument('--channel', default='0211', type=str)
+    parser.add_argument('--channels', default='0211', type=str)
     
     config = parser.parse_args()
     config.git_hash = repo.head.object.hexsha
+    config.channels = config.channels.split(',')
+    
     time_now = pd.to_datetime(pd.Timestamp.now()).strftime('%Y-%m-%d %H:%M:%S')
     specific_run_name = f'{config.run_name}_{time_now}'
     config.specific_run_name = specific_run_name
@@ -99,7 +101,7 @@ def train():
         train_dates,
         config.image_folder,
         config.irradiance_data_file,
-        channel=config.channel,
+        channels=config.channels,
         forecast_horizon_hours=config.forecast_horizon_hours,
         flip_augment=config.flip_augment
     )
@@ -108,7 +110,7 @@ def train():
         validation_dates,
         config.image_folder,
         config.irradiance_data_file,
-        channel=config.channel,
+        channels=config.channels,
         forecast_horizon_hours=config.forecast_horizon_hours,
         scaler = train_dataset.scaler
     )
@@ -117,7 +119,7 @@ def train():
         test_dates,
         config.image_folder,
         config.irradiance_data_file,
-        channel=config.channel,
+        channels=config.channels,
         forecast_horizon_hours=config.forecast_horizon_hours,
         scaler = train_dataset.scaler
     )
