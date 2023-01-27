@@ -58,6 +58,7 @@ def train():
     parser.add_argument('--weight_decay', default=0, type=float)
     parser.add_argument('--forecast_horizon_hours', default=0, type=int)
     parser.add_argument('--flip_augment', action='store_true')
+    parser.add_argument('--channel', default='0211', type=str)
     
     config = parser.parse_args()
     config.git_hash = repo.head.object.hexsha
