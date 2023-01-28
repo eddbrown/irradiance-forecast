@@ -56,7 +56,7 @@ class IrradianceDataset(Dataset):
     def check_date(self, date):
         image_date = date - pd.Timedelta(hours=self.forecast_horizon_hours)
         
-        for channel in channels:
+        for channel in self.channels:
             image_file_name = self.get_file_name(image_date, channel)
         
             if not os.path.exists(image_file_name):
