@@ -58,7 +58,7 @@ class IrradianceDataset(Dataset):
             
         images = torch.cat(images, dim=1)
         
-        scaled_irradiance_data = torch.FloatTensor(self.scaled_irradiance_data.iloc[i])
+        scaled_irradiance_data = torch.FloatTensor(self.scaled_irradiance_data[i])
        
         return images, scaled_irradiance_data
     
