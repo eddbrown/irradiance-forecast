@@ -6,8 +6,8 @@ import torch
 class IrradianceRegressor(nn.Module):
     def __init__(self, hidden_layer_size=100, output_size=23):
         super(IrradianceRegressor, self).__init__()
-        self.hidden_layer_size = hidden_layer_size
         self.image_dims = 224
+        self.hidden_layer_size = hidden_layer_size
         self.resize = nn.Upsample(self.image_dims)
         self.pretrained_model = timm.create_model('vit_base_patch16_224', pretrained=True)
         self.output_size = output_size
@@ -17,7 +17,6 @@ class IrradianceRegressor(nn.Module):
             nn.Linear(hidden_layer_size, hidden_layer_size),
             nn.LeakyReLU(),
             nn.Linear(hidden_layer_size, self.output_size),
-            nn.LeakyReLU(),
         )
 
     def forward(self, images):
