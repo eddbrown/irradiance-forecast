@@ -10,31 +10,40 @@ from multiprocessing import cpu_count, Pool
 import tqdm
 
 class IrradianceDataset(Dataset):
-    def __init__(self, dates, image_folder, irradiance_file, channels=['0211'], scaler=None, forecast_horizon_hours=0, flip_augment=False):
+    def __init__(self, dates, image_folder, irradiance_file, channels=['0211'], scaler=None, forecast_horizon_hours=0, flip_augment=True):
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
+        self.irradiance_data = self.irradiance_data.loc['2010-05-01 00:00:00':'2018-12-31 23:00:00', :]
         self.flip_augment = flip_augment
-
-        # Remove outliers
-        self.irradiance_data = self.irradiance_data.loc[(self.irradiance_data>=1).all(axis=1)]
-        medians = self.irradiance_data.median()
-        for i, column in enumerate(self.irradiance_data.columns):
-            self.irradiance_data = self.irradiance_data[self.irradiance_data[column] < 1000 * medians[i]]
         self.dates = dates
         self.channels = channels
         self.forecast_horizon_hours = forecast_horizon_hours
-        print('Checking available data...')
-        with Pool(cpu_count()) as pool:
-            check_dates = list(pool.map(self.check_date, self.dates))
+        
+        # Remove outliers
+        print('Irradiance Dataset: Dataset length before removing zeros:', len(self.irradiance_data))
+        self.irradiance_data = self.irradiance_data.loc[(self.irradiance_data>=1).all(axis=1)]
+        print('Irradiance Dataset: Dataset length after removing zeros:', len(self.irradiance_data))
+        
+        print('Irradiance Dataset: Dataset length before removing outliers:', len(self.irradiance_data))
+        medians = self.irradiance_data.median()
+        for i, column in enumerate(self.irradiance_data.columns):
+            self.irradiance_data = self.irradiance_data[self.irradiance_data[column] < 1_000_000 * medians[i]]
+        print('Irradiance Dataset: Dataset length after removing outliers:', len(self.irradiance_data))
+
+        print('Irradiance Dataset: Checking available data...')
+        check_dates = [self.check_date(date) for date in self.dates]
         self.dates = sorted([date for check, date in check_dates if check])
         self.irradiance_data = self.irradiance_data.loc[self.dates,:]
+        
+        print('Irradiance Dataset: Scaling data...')
         if scaler is None:
             self.scaler = QuantileTransformer(n_quantiles=1000)
             self.scaler.fit(self.irradiance_data)
         else:
             self.scaler = scaler
         self.scaled_irradiance_data = self.scaler.transform(self.irradiance_data)
-        print('Dataset Length:', len(self.dates))
+        
+        print('Irradiance Dataset: Final Dataset Length:', len(self.dates))
         
     def __len__(self):
         return len(self.dates)
@@ -49,9 +58,9 @@ class IrradianceDataset(Dataset):
             
         images = torch.cat(images, dim=1)
         
-        irradiance_data = torch.FloatTensor(self.scaled_irradiance_data[i])
+        scaled_irradiance_data = torch.FloatTensor(self.scaled_irradiance_data.iloc[i])
        
-        return images, irradiance_data
+        return images, scaled_irradiance_data
     
     def check_date(self, date):
         image_date = date - pd.Timedelta(hours=self.forecast_horizon_hours)

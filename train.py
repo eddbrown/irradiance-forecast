@@ -29,6 +29,7 @@ from git import Repo
 from split_dataset import split_dataset
 from evaluate_model import evaluate_model
 import numpy as np
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 def train():
     repo = Repo()
@@ -175,7 +176,10 @@ def train():
         wandb.log({'test_results': test_results})
                   
         torch.save(
-            {'model': model.state_dict()},
+            {
+                'model': model.state_dict(),
+                'scaler': train_dataset.scaler
+            },
             os.path.join(checkpoint_folder, f'checkpoint_{epoch}_{i}')
         )
                   
