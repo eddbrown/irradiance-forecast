@@ -28,6 +28,7 @@ from tqdm import tqdm
 from git import Repo
 from split_dataset import split_dataset
 from evaluate_model import evaluate_model
+from loss_functions import multiplicative_l2_loss
 import numpy as np
 torch.multiprocessing.set_sharing_strategy('file_system')
 
@@ -60,6 +61,7 @@ def train():
     parser.add_argument('--forecast_horizon_hours', default=0, type=int)
     parser.add_argument('--flip_augment', default=False, type=bool)
     parser.add_argument('--channels', default='0211', type=str)
+    parser.add_argument('--loss_function', default='mse', type=str)
     
     config = parser.parse_args()
     config.git_hash = repo.head.object.hexsha
@@ -131,7 +133,10 @@ def train():
         model.load_state_dict(model_data['model'])
 
     # Initialize BCELoss function
-    criterion = nn.MSELoss()
+    if config.loss_function == 'mse':
+        criterion = nn.MSELoss()
+    elif config.loss_function == 'custom':
+        criterion = multiplicative_l2_loss
 
     # Setup Adam optimizers for both G and D
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
