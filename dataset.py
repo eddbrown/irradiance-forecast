@@ -27,7 +27,7 @@ class IrradianceDataset(Dataset):
         print('Irradiance Dataset: Dataset length before removing outliers:', len(self.irradiance_data))
         medians = self.irradiance_data.median()
         for i, column in enumerate(self.irradiance_data.columns):
-            self.irradiance_data = self.irradiance_data[self.irradiance_data[column] < 1_000_000 * medians[i]]
+            self.irradiance_data = self.irradiance_data[self.irradiance_data[column] < 1_000 * medians[i]]
         print('Irradiance Dataset: Dataset length after removing outliers:', len(self.irradiance_data))
 
         print('Irradiance Dataset: Checking available data...')
@@ -87,17 +87,17 @@ class IrradianceDataset(Dataset):
     
     def scale(self, image, channel):
         if channel == '0211':
-            image = np.log(np.clip(image, 20, 20000))
-            image = (image - np.log(1))/(np.log(20000) - np.log(1))
+            image = np.log(np.clip(image, 5, 20000))
+            image = (image - np.log(5))/(np.log(20000) - np.log(5))
         elif channel == '0094':
-            image = np.log(np.clip(image, 10, 300))
-            image = (image - np.log(1))/(np.log(300) - np.log(1))
+            image = np.log(np.clip(image, 5, 1000))
+            image = (image - np.log(5))/(np.log(1000) - np.log(5))
         elif channel == '0335':
-            image = np.log(np.clip(image, 10, 2000))
-            image = (image - np.log(1))/(np.log(2000) - np.log(1))
+            image = np.log(np.clip(image, 5, 2000))
+            image = (image - np.log(5))/(np.log(2000) - np.log(5))
         elif channel == '1600':
-            image = np.log(np.clip(image, 10, 3000))
-            image = (image - np.log(1))/(np.log(3000) - np.log(1))
+            image = np.log(np.clip(image, 5, 3000))
+            image = (image - np.log(5))/(np.log(3000) - np.log(5))
         return image
         
     def get_file_name(self, date, channel):

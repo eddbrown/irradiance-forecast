@@ -113,7 +113,7 @@ def train():
         config.irradiance_data_file,
         channels=config.channels,
         forecast_horizon_hours=config.forecast_horizon_hours,
-        scaler = train_dataset.scaler
+        scaler=train_dataset.scaler
     )
     
     test_dataset = IrradianceDataset(
@@ -122,7 +122,7 @@ def train():
         config.irradiance_data_file,
         channels=config.channels,
         forecast_horizon_hours=config.forecast_horizon_hours,
-        scaler = train_dataset.scaler
+        scaler=train_dataset.scaler
     )
 
     model = IrradianceRegressor().to(device)
