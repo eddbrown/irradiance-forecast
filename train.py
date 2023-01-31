@@ -69,7 +69,7 @@ def train():
     specific_run_name = f'{config.run_name}_{time_now}'
     config.specific_run_name = specific_run_name
     config.date = str(time_now)
-    run_save_folder = os.path.join(config.save_folder, specific_run_name)
+
     
     with open(config.key_file) as json_file:
         wandb_api_key = json.load(json_file)['api_key']
@@ -82,12 +82,11 @@ def train():
     # Half the memory of float64
     torch.set_default_dtype(torch.float32)
     
+    run_save_folder = os.path.join(config.save_folder, specific_run_name)
+    checkpoint_folder = os.path.join(run_save_folder, 'run_checkpoints')
     if not os.path.exists(run_save_folder):
         os.mkdir(run_save_folder)
-        checkpoint_folder = os.path.join(run_save_folder, 'run_checkpoints')
-        pictures_folder = os.path.join(run_save_folder, 'pictures')
         os.mkdir(checkpoint_folder)
-        os.mkdir(pictures_folder)
         
     with open(os.path.join(run_save_folder, 'config.json'), 'w') as f:
         json.dump(vars(config), f)
