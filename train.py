@@ -140,7 +140,7 @@ def train():
     elif config.loss_function == 'weighted':
         criterion = weighted_mse_loss
     elif config.loss_function == 'heavy_weighted':
-        criterion.loss_function == heavy_weighted
+        criterion = heavy_weighted
 
     # Setup Adam optimizers for both G and D
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
