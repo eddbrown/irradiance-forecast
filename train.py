@@ -28,7 +28,7 @@ from tqdm import tqdm
 from git import Repo
 from split_dataset import split_dataset
 from evaluate_model import evaluate_model
-from loss_functions import multiplicative_l2_loss, weighted_mse_loss
+from loss_functions import multiplicative_l2_loss, weighted_mse_loss, heavy_weighted
 import numpy as np
 torch.multiprocessing.set_sharing_strategy('file_system')
 
@@ -139,6 +139,8 @@ def train():
         criterion = multiplicative_l2_loss
     elif config.loss_function == 'weighted':
         criterion = weighted_mse_loss
+    elif congif.loss_function == 'heavy_weighted':
+        criterion.loss_function == heavy_weighted
 
     # Setup Adam optimizers for both G and D
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
