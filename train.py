@@ -138,7 +138,7 @@ def train():
     elif config.loss_function == 'multiplicative':
         criterion = multiplicative_l2_loss
     elif config.loss_function == 'weighted':
-        critenrion = weighted_mse_loss
+        criterion = weighted_mse_loss
 
     # Setup Adam optimizers for both G and D
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
