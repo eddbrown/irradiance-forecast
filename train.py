@@ -71,6 +71,8 @@ def train():
     specific_run_name = f'{config.run_name}_{time_now}'
     config.specific_run_name = specific_run_name
     config.date = str(time_now)
+    
+    print(config)
 
     
     with open(config.key_file) as json_file:
