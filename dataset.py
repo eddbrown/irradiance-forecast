@@ -13,7 +13,7 @@ class IrradianceDataset(Dataset):
     def __init__(self, dates, image_folder, irradiance_file, channels=['0211'], scaler=None, forecast_horizon_hours=0, flip_augment=True):
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
-        self.irradiance_data = self.irradiance_data.loc['2010-05-01 00:00:00':'2018-12-31 23:00:00', :]
+        self.irradiance_data = self.irradiance_data.loc['2010-05-01 00:00:00':'2018-12-31 23:30:00', :]
         self.flip_augment = flip_augment
         self.dates = dates
         self.channels = channels
@@ -70,6 +70,7 @@ class IrradianceDataset(Dataset):
             image_file_name = self.get_file_name(image_date, channel)
         
             if not os.path.exists(image_file_name):
+                print(channel, date, image_file_name)
                 return False, date
             try:
                 irradiance_datum = self.irradiance_data.loc[date]
