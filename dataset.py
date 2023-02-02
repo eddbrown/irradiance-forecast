@@ -35,6 +35,7 @@ class IrradianceDataset(Dataset):
         self.dates = sorted([date for check, date in check_dates if check])
         self.irradiance_data = self.irradiance_data.loc[self.dates,:]
         
+        print('Irradiance Dataset: Data available with selected dates:', len(self.irradiance_data))
         print('Irradiance Dataset: Scaling data...')
         if scaler is None:
             self.scaler = QuantileTransformer(n_quantiles=1000)
