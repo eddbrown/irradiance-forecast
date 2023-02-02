@@ -70,7 +70,6 @@ class IrradianceDataset(Dataset):
             image_file_name = self.get_file_name(image_date, channel)
         
             if not os.path.exists(image_file_name):
-                print(channel, date, image_file_name)
                 return False, date
             try:
                 irradiance_datum = self.irradiance_data.loc[date]
