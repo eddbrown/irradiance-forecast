@@ -75,7 +75,7 @@ def train():
     with open(config.key_file) as json_file:
         wandb_api_key = json.load(json_file)['api_key']
     wandb.login(key=wandb_api_key)
-    wandb.init(project='irradiance_forecast', config=vars(config), entity="eddyb92")
+    wandb.init(project='clean-irradiance_forecast', config=vars(config), entity="eddyb92")
     
     print(config)
     wandb.run.name = specific_run_name
@@ -141,7 +141,6 @@ def train():
     elif config.loss_function == 'heavy_weighted':
         criterion = heavy_weighted
 
-    # Setup Adam optimizers for both G and D
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
 
     # Set random seed for reproducibility

@@ -17,7 +17,7 @@ def heavy_weighted(predicted, target):
         if b == 0:
             weight[:,b] = 100
         elif b == 1:
-            weight[:,b] = 10
+            weight[:,b] = 100
         else:
             weight[:,b] = 1
     return torch.mean(weight * (predicted - target) ** 2)
