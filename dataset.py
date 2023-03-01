@@ -87,18 +87,22 @@ class IrradianceDataset(Dataset):
         return torch.Tensor(image).unsqueeze(0)
     
     def scale(self, image, channel):
-        if channel == '0211':
-            image = np.log(np.clip(image, 5, 20000))
-            image = (image - np.log(5))/(np.log(20000) - np.log(5))
-        elif channel == '0094':
-            image = np.log(np.clip(image, 5, 1000))
-            image = (image - np.log(5))/(np.log(1000) - np.log(5))
+        # Numbers picked by using the 20th and 99.999th percentile pixel values
+        # of 100 random images from each channel
+        # 20th percentile because we want to make most of the off-disk pixels the same as they are likely not relevant.
+        if channel == '0094':
+            return self.log_linear_scale(image, 0.52, 781.95)
+        elif channel == '0211':
+            return self.log_linear_scale(image, 18.02, 9264.69)
         elif channel == '0335':
-            image = np.log(np.clip(image, 5, 2000))
-            image = (image - np.log(5))/(np.log(2000) - np.log(5))
+            return self.log_linear_scale(image, 2.1, 946.49)
         elif channel == '1600':
-            image = np.log(np.clip(image, 5, 3000))
-            image = (image - np.log(5))/(np.log(3000) - np.log(5))
+            return self.log_linear_scale(image, 5.04, 1367.08)
+        return image
+    
+    def log_linear_scale(self, image, min_, max_):
+        image = np.log(np.clip(image, min_, max_))
+        image = (image - np.log(min_))/(np.log(max_) - np.log(min_))
         return image
         
     def get_file_name(self, date, channel):
