@@ -91,7 +91,7 @@ class IrradianceDataset(Dataset):
         # of 100 random images from each channel
         # 20th percentile because we want to make most of the off-disk pixels the same as they are likely not relevant.
         if channel == '0094':
-            return self.log_linear_scale(image, 10, 781.95)
+            return self.log_linear_scale(image, 0.52, 781.95)
         elif channel == '0211':
             return self.log_linear_scale(image, 18.02, 9264.69)
         elif channel == '0335':
