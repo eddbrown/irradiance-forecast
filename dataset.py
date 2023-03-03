@@ -42,7 +42,8 @@ class IrradianceDataset(Dataset):
             self.scaler.fit(self.irradiance_data)
         else:
             self.scaler = scaler
-        self.scaled_irradiance_data = self.scaler.transform(self.irradiance_data)
+        self.scaled_irradiance_data = self.irradiance_data.copy()
+        self.scaled_irradiance_data[self.irradiance_data.columns] = self.scaler.transform(self.irradiance_data)
         
         print('Irradiance Dataset: Final Dataset Length:', len(self.dates))
         
@@ -59,9 +60,12 @@ class IrradianceDataset(Dataset):
             
         images = torch.cat(images, dim=1)
         
-        scaled_irradiance_data = torch.FloatTensor(self.scaled_irradiance_data[i])
+        irradiance_data_forecast_date = torch.FloatTensor(
+            self.scaled_irradiance_data.loc[forecast_date,:])
+        irradiance_data_image_date = torch.FloatTensor(
+            self.scaled_irradiance_data.loc[image_date,:])
        
-        return images, scaled_irradiance_data
+        return images, irradiance_data_image_date, irradiance_data_forecast_date
     
     def check_date(self, date):
         image_date = date - pd.Timedelta(hours=self.forecast_horizon_hours)
@@ -72,7 +76,8 @@ class IrradianceDataset(Dataset):
             if not os.path.exists(image_file_name):
                 return False, date
             try:
-                irradiance_datum = self.irradiance_data.loc[date]
+                irradiance_datum = self.irradiance_data.loc[date,:]
+                irradiance_datum = self.irradiance_data.loc[image_date,:]
             except:
                 return False, date
         return True, date

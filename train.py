@@ -62,6 +62,7 @@ def train():
     parser.add_argument('--flip_augment', default=False, type=bool)
     parser.add_argument('--channels', default='0211', type=str)
     parser.add_argument('--loss_function', default='mse', type=str)
+    parser.add_argument('--add_persistence', default=False, type=bool)
     
     config = parser.parse_args()
     config.git_hash = repo.head.object.hexsha
@@ -125,8 +126,11 @@ def train():
         scaler=train_dataset.scaler
     )
 
-    model = IrradianceRegressor().to(device)
-    
+    if config.add_persistence:
+        model = IrradianceRegressorWithPersistence().to(device)
+    else:
+        model = IrradianceRegressor().to(device)
+
     if config.checkpoint != '':
         model_data = torch.load(config.checkpoint)
         model.load_state_dict(model_data['model'])
