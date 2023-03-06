@@ -56,7 +56,7 @@ class IrradianceDataset(Dataset):
         images = []
         
         if self.flip_augment:
-            flip = np.random.choice([True, False]):
+            flip = np.random.choice([True, False])
                 
         for channel in self.channels:
             image_file_name = self.get_file_name(image_date, channel)
