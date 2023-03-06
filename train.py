@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import timm
-from models import IrradianceRegressor
+from models import IrradianceRegressor, IrradianceRegressorWithPersistence
 from dataset import IrradianceDataset
 import imageio
 import wandb
