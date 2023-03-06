@@ -161,10 +161,7 @@ def train():
         for i, data in enumerate(tqdm(dataloader)):
             model.zero_grad()
             image, peristence, target = data[0], data[1], data[2]
-            if config.add_persistence:
-                prediction = model.forward(image.to(device), persistence.to(device))
-            else:
-                prediction = model.forward(image.to(device))
+            prediction = model.forward(image.to(device), persistence.to(device))
             loss = criterion(prediction, target.to(device))
             loss.backward()
             optimizer.step()
