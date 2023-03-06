@@ -33,9 +33,8 @@ class IrradianceDataset(Dataset):
         print('Irradiance Dataset: Checking available data...')
         check_dates = [self.check_date(date) for date in self.dates]
         self.dates = sorted([date for check, date in check_dates if check])
-        self.irradiance_data = self.irradiance_data.loc[self.dates,:]
         
-        print('Irradiance Dataset: Data available with selected dates:', len(self.irradiance_data))
+        print('Irradiance Dataset: Data available with selected dates:', len(self.dates))
         print('Irradiance Dataset: Scaling data...')
         if scaler is None:
             self.scaler = QuantileTransformer(n_quantiles=1000)
@@ -53,6 +52,7 @@ class IrradianceDataset(Dataset):
     def __getitem__(self, i):
         forecast_date = self.dates[i]
         image_date = forecast_date - pd.Timedelta(hours=self.forecast_horizon_hours)
+        image_date = pd.to_datetime(str(image_date))
         images = []
         for channel in self.channels:
             image_file_name = self.get_file_name(image_date, channel)
@@ -68,7 +68,7 @@ class IrradianceDataset(Dataset):
         return images, irradiance_data_image_date, irradiance_data_forecast_date
     
     def check_date(self, date):
-        image_date = date - pd.Timedelta(hours=self.forecast_horizon_hours)
+        image_date = pd.to_datetime(date - pd.Timedelta(hours=self.forecast_horizon_hours))
         
         for channel in self.channels:
             image_file_name = self.get_file_name(image_date, channel)
