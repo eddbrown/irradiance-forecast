@@ -32,16 +32,16 @@ def evaluate_model(model, dataset, batch_size=32, device='cuda:0', num_workers=8
     results = {}
     for band_index, band in enumerate(dataset.irradiance_data.columns):
         results['loss'] = loss
-        persistence_mape =  mape(persistences, targets)
-        model_mape = mape(predictions, targets)
+        persistence_mape =  mape(persistences[:,band_index], targets[:,band_index])
+        model_mape = mape(predictions[:,band_index], targets[:,band_index])
         
         if persistence_mape > 0:
             persistence_score = 1.0 - (model_mape/persistence_mape)
         else:
             persistence_score = 0.0
             
-        results[f'rmse_{band}'] = rmse(predictions, targets)
-        results[f'mape_{band}'] = mape(predictions, targets)
+        results[f'rmse_{band}'] = rmse(predictions[:,band_index], targets[:,band_index])
+        results[f'mape_{band}'] = mape(predictions[:,band_index], targets[:,band_index])
         results[f'persistence_mape_{band}'] = persistence_mape
         results[f'persistence_score_{band}'] = persistence_score
     
