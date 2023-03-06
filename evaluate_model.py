@@ -22,7 +22,7 @@ def evaluate_model(model, dataset, batch_size=32, device='cuda:0', num_workers=8
     
     predictions = np.concatenate(predictions)
     targets = np.concatenate(targets)
-    persistence = np.concatenate(persistences)
+    persistences = np.concatenate(persistences)
     loss = mse(predictions, targets)
     
     predictions = dataset.scaler.inverse_transform(predictions)
