@@ -13,8 +13,8 @@ def evaluate_model(model, dataset, batch_size=32, device='cuda:0', num_workers=8
     
     with torch.no_grad():
         for i, data in enumerate(tqdm(dataloader)):
-            image, target = data[0], data[1]
-            model_output = model.forward(image.to(device))
+            image, persistence, target = data[0], data[1], data[2]
+            model_output = model.forward(image.to(device), persistence.to(device))
             predictions.append(model_output.detach().cpu().numpy())
             targets.append(target.detach().cpu().numpy())
     

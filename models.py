@@ -19,7 +19,7 @@ class IrradianceRegressor(nn.Module):
             nn.Linear(hidden_layer_size, self.output_size),
         )
 
-    def forward(self, images):
+    def forward(self, images, persistence):
         batch_size = images.shape[0]
         resized_image = self.resize(images)
         # If three channel already, just run the model, else concatenate three times.

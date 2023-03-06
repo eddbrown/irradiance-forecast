@@ -100,7 +100,7 @@ def train():
     train_dates, validation_dates, test_dates = split_dataset()
 
     train_dataset = IrradianceDataset(
-        train_dates,
+        list(train_dates),
         config.image_folder,
         config.irradiance_data_file,
         channels=config.channels,
@@ -109,7 +109,7 @@ def train():
     )
     
     validation_dataset = IrradianceDataset(
-        validation_dates,
+        list(validation_dates),
         config.image_folder,
         config.irradiance_data_file,
         channels=config.channels,
@@ -118,7 +118,7 @@ def train():
     )
     
     test_dataset = IrradianceDataset(
-        test_dates,
+        list(test_dates),
         config.image_folder,
         config.irradiance_data_file,
         channels=config.channels,
@@ -160,8 +160,11 @@ def train():
     for epoch in range(config.num_epochs):
         for i, data in enumerate(tqdm(dataloader)):
             model.zero_grad()
-            image, target = data[0], data[1]
-            prediction = model.forward(image.to(device))
+            image, peristence, target = data[0], data[1], data[2]
+            if config.add_persistence:
+                prediction = model.forward(image.to(device), persistence.to(device))
+            else:
+                prediction = model.forward(image.to(device))
             loss = criterion(prediction, target.to(device))
             loss.backward()
             optimizer.step()
