@@ -160,7 +160,7 @@ def train():
     for epoch in range(config.num_epochs):
         for i, data in enumerate(tqdm(dataloader)):
             model.zero_grad()
-            image, peristence, target = data[0], data[1], data[2]
+            image, persistence, target = data[0], data[1], data[2]
             prediction = model.forward(image.to(device), persistence.to(device))
             loss = criterion(prediction, target.to(device))
             loss.backward()
