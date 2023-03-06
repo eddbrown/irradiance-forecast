@@ -54,9 +54,13 @@ class IrradianceDataset(Dataset):
         image_date = forecast_date - pd.Timedelta(hours=self.forecast_horizon_hours)
         image_date = pd.to_datetime(str(image_date))
         images = []
+        
+        if self.flip_augment:
+            flip = np.random.choice([True, False]):
+                
         for channel in self.channels:
             image_file_name = self.get_file_name(image_date, channel)
-            images.append(self.load_image(image_file_name, channel))
+            images.append(self.load_image(image_file_name, channel, flip=flip))
             
         images = torch.cat(images, dim=1)
         
@@ -82,12 +86,11 @@ class IrradianceDataset(Dataset):
                 return False, date
         return True, date
         
-    def load_image(self, file_path, channel):
+    def load_image(self, file_path, channel,flip=True):
         with open(file_path, 'rb') as f:
             image = np.load(f)['x']
-        if self.flip_augment:
-            if np.random.choice([True, False]):
-                image = np.flipud(image)
+        if flip:
+            image = np.flipud(image)
         image = self.scale(image, channel)
         return torch.Tensor(image).unsqueeze(0)
     
