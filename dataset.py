@@ -72,18 +72,18 @@ class IrradianceDataset(Dataset):
         return images, irradiance_data_image_date, irradiance_data_forecast_date
     
     def check_date(self, date):
+        if date not in self.irradiance_data.index:
+            return False, date
+        
         image_date = pd.to_datetime(date - pd.Timedelta(hours=self.forecast_horizon_hours))
+        if image_date not in self.irradiance_data.index:
+            return False, date
         
         for channel in self.channels:
             image_file_name = self.get_file_name(image_date, channel)
-        
             if not os.path.exists(image_file_name):
                 return False, date
-            try:
-                irradiance_datum = self.irradiance_data.loc[date,:]
-                irradiance_datum = self.irradiance_data.loc[image_date,:]
-            except:
-                return False, date
+
         return True, date
         
     def load_image(self, file_path, channel,flip=True):
