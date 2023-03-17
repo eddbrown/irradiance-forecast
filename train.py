@@ -128,8 +128,10 @@ def train():
 
     if config.add_persistence:
         model = IrradianceRegressorWithPersistence().to(device)
+        print('Using persistence model')
     else:
         model = IrradianceRegressor().to(device)
+        print('Using non-persistence model')
 
     if config.checkpoint != '':
         model_data = torch.load(config.checkpoint)
