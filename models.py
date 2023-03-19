@@ -91,10 +91,10 @@ class MaxVit(nn.Module):
         resized_image = self.resize(images)
         # If three channel already, just run the model, else concatenate three times.
         if images.shape[1] == 3:
-            features = self.pretrained_model.forward_features(resized_image)[:,0,0,:]
+            features = self.pretrained_model.forward_features(resized_image)[:,:,0,0]
         else:
             three_channel = torch.cat([resized_image, resized_image, resized_image], dim=1)
-            features = self.pretrained_model.forward_features(three_channel)[:,0,0,:]
+            features = self.pretrained_model.forward_features(three_channel)[:,:,0,0]
 
         fc_output = self.fc(torch.cat((features, persistence),dim=1))
         return fc_output
