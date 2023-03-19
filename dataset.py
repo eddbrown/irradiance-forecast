@@ -5,9 +5,27 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset
 from tqdm import tqdm
-from sklearn.preprocessing import QuantileTransformer
+from sklearn.preprocessing import QuantileTransformer, MinMaxScaler
 from multiprocessing import cpu_count, Pool
 import tqdm
+
+class CustomScaler():
+    def __init__(self):
+        self.min_max_scaler = MinMaxScaler()
+        
+    def fit(self, data):
+        logged_data = np.log(data)
+        self.min_max_scaler.fit(logged_data)
+
+    def transform(self, data):
+        logged_data = np.log(data)
+        scaled_logged_data = self.min_max_scaler.transform(logged_data)
+        return scaled_logged_data
+    
+    def inverse_transform(self, data):
+        unscaled_data = self.min_max_scaler.inverse_transform(data)
+        unlogged_data = np.exp(data)
+        return unlogged_data
 
 class IrradianceDataset(Dataset):
     def __init__(self, dates, image_folder, irradiance_file, channels=['0211'], scaler=None, forecast_horizon_hours=0, flip_augment=True):
@@ -37,12 +55,12 @@ class IrradianceDataset(Dataset):
         print('Irradiance Dataset: Data available with selected dates:', len(self.dates))
         print('Irradiance Dataset: Scaling data...')
         if scaler is None:
-            self.scaler = QuantileTransformer(n_quantiles=1000)
+            self.scaler = CustomScaler()
             self.scaler.fit(self.irradiance_data)
         else:
             self.scaler = scaler
         self.scaled_irradiance_data = self.irradiance_data.copy()
-        self.scaled_irradiance_data[self.irradiance_data.columns] = self.scaler.transform(self.irradiance_data)
+        self.scaled_irradiance_data[self.irradiance_data.columns] = self.scaler.transform(self.irradiance_data[self.irradiance_data.columns].values)
         
         print('Irradiance Dataset: Final Dataset Length:', len(self.dates))
         
