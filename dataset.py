@@ -24,7 +24,7 @@ class CustomScaler():
     
     def inverse_transform(self, data):
         unscaled_data = self.min_max_scaler.inverse_transform(data)
-        unlogged_data = np.exp(data)
+        unlogged_data = np.exp(unscaled_data)
         return unlogged_data
 
 class IrradianceDataset(Dataset):
