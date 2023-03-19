@@ -156,10 +156,10 @@ class Resnet(nn.Module):
         self.image_dims = 224
         self.hidden_layer_size = hidden_layer_size
         self.resize = nn.Upsample(self.image_dims)
-        self.pretrained_model = timm.create_model('resnet10t', pretrained=True)
+        self.pretrained_model = timm.create_model('resnet50', pretrained=True)
         self.output_size = output_size
         self.fc = nn.Sequential(
-            nn.Linear(512+23, hidden_layer_size),
+            nn.Linear(2048+output_size, hidden_layer_size),
             nn.LeakyReLU(),
             nn.Linear(hidden_layer_size, hidden_layer_size),
             nn.LeakyReLU(),
