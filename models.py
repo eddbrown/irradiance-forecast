@@ -74,7 +74,7 @@ class MaxVit(nn.Module):
         self.pretrained_model = timm.create_model('maxvit_base_tf_224.in21k', pretrained=True)
         self.output_size = output_size
         self.fc = nn.Sequential(
-            nn.Linear(1000+23, hidden_layer_size),
+            nn.Linear(768+23, hidden_layer_size),
             nn.LeakyReLU(),
             nn.Linear(hidden_layer_size, hidden_layer_size),
             nn.LeakyReLU(),
