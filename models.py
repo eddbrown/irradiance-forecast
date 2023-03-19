@@ -71,7 +71,7 @@ class MaxVit(nn.Module):
         self.image_dims = 224
         self.hidden_layer_size = hidden_layer_size
         self.resize = nn.Upsample(self.image_dims)
-        self.pretrained_model = timm.create_model('maxvit_base_tf_224.in21k')
+        self.pretrained_model = timm.create_model('maxvit_base_tf_224.in21k', pretrained=True)
         self.output_size = output_size
         self.fc = nn.Sequential(
             nn.Linear(1000+23, hidden_layer_size),
@@ -95,6 +95,6 @@ class MaxVit(nn.Module):
         else:
             three_channel = torch.cat([resized_image, resized_image, resized_image], dim=1)
             features = self.pretrained_model.forward(three_channel)
-        print(features.shape, persistence.shape)
+
         fc_output = self.fc(torch.cat((features, persistence),dim=1))
         return fc_output
