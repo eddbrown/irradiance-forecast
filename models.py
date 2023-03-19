@@ -94,7 +94,7 @@ class MaxVit(nn.Module):
             features = self.pretrained_model.forward_features(resized_image)[:,0,0,:]
         else:
             three_channel = torch.cat([resized_image, resized_image, resized_image], dim=1)
-            features = self.pretrained_model.forward_features(three_channel)
+            features = self.pretrained_model.forward_features(three_channel)[:,0,0,:]
 
         fc_output = self.fc(torch.cat((features, persistence),dim=1))
         return fc_output
