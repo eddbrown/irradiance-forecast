@@ -49,7 +49,9 @@ class IrradianceDataset(Dataset):
         print('Irradiance Dataset: Dataset length after removing outliers:', len(self.irradiance_data))
 
         print('Irradiance Dataset: Checking available data...')
-        check_dates = [self.check_date(date) for date in self.dates]
+        with Pool(cpu_count()) as pool:
+            check_dates = pool.map(self.check_date, self.dates)
+            
         self.dates = sorted([date for check, date in check_dates if check])
         
         print('Irradiance Dataset: Data available with selected dates:', len(self.dates))
