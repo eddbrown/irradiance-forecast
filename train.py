@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import timm
-from models import IrradianceRegressor, IrradianceRegressorWithPersistence,MaxVit
+from models import IrradianceRegressor, IrradianceRegressorWithPersistence,MaxVit,Resnet
 from dataset import IrradianceDataset
 import imageio
 import wandb
@@ -127,7 +127,7 @@ def train():
     )
 
     if config.add_persistence:
-        model = MaxVit().to(device)
+        model = Resnet().to(device)
         print('Using persistence model')
     else:
         model = IrradianceRegressor().to(device)
