@@ -84,7 +84,7 @@ class IrradianceRegressorWithPersistence(nn.Module):
             nn.Linear(hidden_layer_size, hidden_layer_size),
             nn.LeakyReLU(),
             nn.Linear(hidden_layer_size, self.output_size),
-            nn.LeakyReLU(),
+            nn.Tanh()
         )
 
     def forward(self, images, persistence):
