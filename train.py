@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import timm
-from models import IrradianceRegressor, IrradianceRegressorWithPersistence,MaxVit,Resnet,AdditivePersistence
+from models import SolarIrradianceForecast
 from dataset import IrradianceDataset
 import imageio
 import wandb
@@ -126,12 +126,9 @@ def train():
         scaler=train_dataset.scaler
     )
 
-    if config.add_persistence:
-        model = AdditivePersistence().to(device)
-        print('Using persistence model')
-    else:
-        model = IrradianceRegressor().to(device)
-        print('Using non-persistence model')
+    model = SolarIrradianceForecast(
+        persistence=config.add_persistence
+    ).to(device)
 
     if config.checkpoint != '':
         model_data = torch.load(config.checkpoint)
