@@ -61,8 +61,9 @@ class AdditivePersistence(nn.Module):
         else:
             three_channel = torch.cat([resized_image, resized_image, resized_image], dim=1)
             features = self.pretrained_model.forward_features(three_channel)[:,-1,:]
-        fc_output = features + persistence
-        return fc_output
+        fc_output = self.fc(features)
+        output = fc_output + persistence
+        return output
 
     
 class IrradianceRegressorWithPersistence(nn.Module):
