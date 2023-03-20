@@ -37,10 +37,10 @@ class AdditivePersistence(nn.Module):
         self.image_dims = 224
         self.hidden_layer_size = hidden_layer_size
         self.resize = nn.Upsample(self.image_dims)
-        self.pretrained_model = timm.create_model('vit_base_patch16_224', pretrained=True)
+        self.pretrained_model = timm.create_model('swin_base_patch4_window7_224.ms_in22k', pretrained=True)
         self.output_size = output_size
         self.fc = nn.Sequential(
-            nn.Linear(768, hidden_layer_size),
+            nn.Linear(1024, hidden_layer_size),
             nn.LeakyReLU(),
             nn.Linear(hidden_layer_size, hidden_layer_size),
             nn.LeakyReLU(),
@@ -57,10 +57,11 @@ class AdditivePersistence(nn.Module):
         resized_image = self.resize(images)
         # If three channel already, just run the model, else concatenate three times.
         if images.shape[1] == 3:
-            features = self.pretrained_model.forward_features(resized_image)[:,-1,:]
+            features = self.pretrained_model.forward_features(resized_image)[:,0,0,:]
         else:
             three_channel = torch.cat([resized_image, resized_image, resized_image], dim=1)
-            features = self.pretrained_model.forward_features(three_channel)[:,-1,:]
+            features = self.pretrained_model.forward_features(three_channel)[:,0,0,:]
+        
         fc_output = self.fc(features)
         output = fc_output + persistence
         return output
