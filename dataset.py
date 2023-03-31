@@ -28,10 +28,10 @@ class CustomScaler():
         return unlogged_data
 
 class IrradianceDataset(Dataset):
-    def __init__(self, dates, image_folder, irradiance_file, channels=['0211'], scaler=None, forecast_horizon_hours=0, flip_augment=False):
+    def __init__(self, dates, image_folder, irradiance_file, channels=['0211'], scaler=None, forecast_horizon_hours=0, flip_augment=False, min_date='2010-05-01 00:00:00', max_date='2018-12-31 23:30:00'):
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
-        self.irradiance_data = self.irradiance_data.loc['2010-05-01 00:00:00':'2017-12-31 23:30:00', :]
+        self.irradiance_data = self.irradiance_data.loc[min_date:max_date, :]
         self.flip_augment = flip_augment
         self.dates = dates
         self.channels = channels
