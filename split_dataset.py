@@ -4,7 +4,7 @@ import pandas as pd
 from pandas.tseries.offsets import MonthEnd
 
 
-def split_dataset(start_date='2010-05-01', end_date='2019-01-01 00:00:00', buffer_days=2):
+def split_dataset(min_date='2010-05-01', max_date='2019-01-01 00:00:00', buffer_days=2):
     train_period = 30 * 24 * 2 #Freq is 30 mins so this is 30 days  
     validation_period = 5 * 24 * 2
     test_period = 5 * 24 * 2
@@ -17,7 +17,7 @@ def split_dataset(start_date='2010-05-01', end_date='2019-01-01 00:00:00', buffe
         + ['test'] * test_period \
         + ['buffer'] * buffer_period
     
-    dates = list(pd.date_range(start=start_date, end=end_date, freq='30T'))
+    dates = list(pd.date_range(start=min_date, end=max_date, freq='30T'))
     
     train_dates = []
     validation_dates = []

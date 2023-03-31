@@ -63,6 +63,8 @@ def train():
     parser.add_argument('--channels', default='0211', type=str)
     parser.add_argument('--loss_function', default='mse', type=str)
     parser.add_argument('--add_persistence', action='store_true')
+    parser.add_argument('--min_date', default='2010-05-01 00:00:00', type=str)
+    parser.add_argument('--max_date', default='2018-12-31 23:30:00', type=str)
     
     config = parser.parse_args()
     config.git_hash = repo.head.object.hexsha
@@ -97,7 +99,7 @@ def train():
 
     losses = []
     
-    train_dates, validation_dates, test_dates = split_dataset()
+    train_dates, validation_dates, test_dates = split_dataset(min_date=config.min_date, max_date=config.max_date)
 
     train_dataset = IrradianceDataset(
         list(train_dates),
