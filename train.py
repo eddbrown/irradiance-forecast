@@ -52,7 +52,6 @@ def train():
     parser.add_argument('--irradiance_data_file', default="/data/hpcdata/users/edbrown41/stan_bands.h5", type=str)
     parser.add_argument('--run_name', default='run', type=str)
     parser.add_argument('--random_seed', default=999, type=int)
-    parser.add_argument('--checkpoint_every', default=500, type=int)
     parser.add_argument('--save_folder', default='/data/hpcdata/users/edbrown41/irradiance-forecast/runs', type=str)
     parser.add_argument('--key_file', default='/data/hpcdata/users/edbrown41/irradiance-forecast/keys.json', type=str)
     parser.add_argument('--run_description', help='More verbose run description to describe the run', type=str, required=True)
