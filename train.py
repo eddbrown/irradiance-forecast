@@ -189,7 +189,7 @@ def train():
                 'model': model.state_dict(),
                 'scaler': train_dataset.scaler
             },
-            os.path.join(checkpoint_folder, f'checkpoint_{epoch}_{i}')
+            os.path.join(checkpoint_folder, f'checkpoint_{epoch}')
         )
                   
         if validation_results['loss'] < best_validation_loss:

@@ -28,10 +28,10 @@ class CustomScaler():
         return unlogged_data
 
 class IrradianceDataset(Dataset):
-    def __init__(self, dates, image_folder, irradiance_file, channels=['0211'], scaler=None, forecast_horizon_hours=0, flip_augment=True):
+    def __init__(self, dates, image_folder, irradiance_file, channels=['0211'], scaler=None, forecast_horizon_hours=0, flip_augment=False):
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
-        self.irradiance_data = self.irradiance_data.loc['2010-05-01 00:00:00':'2018-12-31 23:30:00', :]
+        self.irradiance_data = self.irradiance_data.loc['2010-05-01 00:00:00':'2017-12-31 23:30:00', :]
         self.flip_augment = flip_augment
         self.dates = dates
         self.channels = channels
@@ -77,6 +77,8 @@ class IrradianceDataset(Dataset):
         
         if self.flip_augment:
             flip = np.random.choice([True, False])
+        else:
+            flip=False
                 
         for channel in self.channels:
             image_file_name = self.get_file_name(image_date, channel)
