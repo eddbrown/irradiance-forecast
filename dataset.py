@@ -31,7 +31,7 @@ class IrradianceDataset(Dataset):
     def __init__(self, dates, image_folder, irradiance_file, channels=['0211'], scaler=None, forecast_horizon_hours=0, flip_augment=False, min_date='2010-05-01 00:00:00', max_date='2018-12-31 23:30:00'):
         self.image_folder = image_folder
         self.irradiance_data = pd.read_hdf(irradiance_file)
-        self.irradiance_data = self.irradiance_data.loc[min_date:max_date, :]
+        
         self.flip_augment = flip_augment
         self.dates = dates
         self.channels = channels
@@ -46,7 +46,15 @@ class IrradianceDataset(Dataset):
         medians = self.irradiance_data.median()
         for i, column in enumerate(self.irradiance_data.columns):
             self.irradiance_data = self.irradiance_data[self.irradiance_data[column] < 1_000 * medians[i]]
+
         print('Irradiance Dataset: Dataset length after removing outliers:', len(self.irradiance_data))
+        print('Irradiance Dataset: Scaling data...')
+        if scaler is None:
+            self.scaler = CustomScaler()
+            self.scaler.fit(self.irradiance_data)
+        else:
+            self.scaler = scaler
+        self.irradiance_data = self.irradiance_data.loc[min_date:max_date, :]
 
         print('Irradiance Dataset: Checking available data...')
         with Pool(cpu_count()) as pool:
@@ -55,12 +63,8 @@ class IrradianceDataset(Dataset):
         self.dates = sorted([date for check, date in check_dates if check])
         
         print('Irradiance Dataset: Data available with selected dates:', len(self.dates))
-        print('Irradiance Dataset: Scaling data...')
-        if scaler is None:
-            self.scaler = CustomScaler()
-            self.scaler.fit(self.irradiance_data)
-        else:
-            self.scaler = scaler
+
+
         self.scaled_irradiance_data = self.irradiance_data.copy()
         self.scaled_irradiance_data[self.irradiance_data.columns] = self.scaler.transform(self.irradiance_data[self.irradiance_data.columns].values)
         
