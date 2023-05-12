@@ -79,6 +79,8 @@ class IrradianceDataset(Dataset):
         image_date = pd.to_datetime(str(image_date))
         images = []
         
+        # Have to flip before loading images to make sure all channels are flipped
+        # the same way.
         if self.flip_augment:
             flip = np.random.choice([True, False])
         else:
@@ -88,7 +90,7 @@ class IrradianceDataset(Dataset):
             image_file_name = self.get_file_name(image_date, channel)
             images.append(self.load_image(image_file_name, channel, flip=flip))
             
-        images = torch.cat(images, dim=1)
+        images = torch.cat(images, dim=0)
         
         irradiance_data_forecast_date = torch.FloatTensor(
             self.scaled_irradiance_data.loc[forecast_date,:])

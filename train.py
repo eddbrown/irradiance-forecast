@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import timm
-from models import SolarIrradianceForecast
+from models import SolarIrradianceForecast, PretrainedWithImageForecaster
 from dataset import IrradianceDataset
 import imageio
 import wandb
@@ -30,12 +30,15 @@ from split_dataset import split_dataset
 from evaluate_model import evaluate_model
 from loss_functions import multiplicative_l2_loss, weighted_mse_loss, heavy_weighted
 import numpy as np
+import sys
+sys.path.append('/data/hpcdata/users/edbrown41/solar-video-prediction/')
+from solar_video_models import EndwithConvAddTimeDelay
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 def train():
     repo = Repo()
-    if repo.is_dirty():
-        raise Exception('Enforcing good git hygiene: git state is dirty- will not train a model.')
+#     if repo.is_dirty():
+#         raise Exception('Enforcing good git hygiene: git state is dirty- will not train a model.')
     
     f = Figlet(font='5lineoblique')
     print(colored(f.renderText('IRRADIANCE FORECAST'), 'blue'))
@@ -64,6 +67,11 @@ def train():
     parser.add_argument('--add_persistence', action='store_true')
     parser.add_argument('--min_date', default='2010-05-01 00:00:00', type=str)
     parser.add_argument('--max_date', default='2018-12-31 23:30:00', type=str)
+    parser.add_argument('--pretrain_image_model_checkpoint', default='/data/hpcdata/users/edbrown41/solar-video-prediction/runs/fix_time_delay_0094/run_checkpoints/checkpoint_7_2000', type=str)
+    parser.add_argument('--pretrain_image_model_config', default='/data/hpcdata/users/edbrown41/solar-video-prediction/runs/fix_time_delay_0094/config.json', type=str)
+    
+    parser.add_argument('--model_type', default='vision_transformer', type=str)
+    
     
     config = parser.parse_args()
     config.git_hash = repo.head.object.hexsha
@@ -77,7 +85,7 @@ def train():
     with open(config.key_file) as json_file:
         wandb_api_key = json.load(json_file)['api_key']
     wandb.login(key=wandb_api_key)
-    wandb.init(project='clean-irradiance_forecast', config=vars(config), entity="eddyb92")
+    wandb.init(project='cleaner-irradiance_forecast', config=vars(config), entity="eddyb92")
     
     print(config)
     wandb.run.name = specific_run_name
@@ -126,14 +134,24 @@ def train():
         forecast_horizon_hours=config.forecast_horizon_hours,
         scaler=train_dataset.scaler
     )
+    
+    if config.model_type == 'vision_transformer':
+        model = SolarIrradianceForecast(
+            persistence=config.add_persistence
+        ).to(device)
+        
+        if config.checkpoint != '':
+            model_data = torch.load(config.checkpoint)
+            model.load_state_dict(model_data['model'])
+    elif config.model_type == 'pretrained_solar_model':
+        print('Loading pretrained solar video model.')
+        with open(config.pretrain_image_model_config, 'r') as f:
+            generator_config = json.load(f)
+        data = torch.load(config.pretrain_image_model_checkpoint, map_location='cpu')
+        generator = EndwithConvAddTimeDelay(generator_config['layer_list']).to(device)
+        generator.load_state_dict(data['generator'])
+        model = PretrainedWithImageForecaster(generator, persistence=config.pretrain_image_model_checkpoint).to(device)
 
-    model = SolarIrradianceForecast(
-        persistence=config.add_persistence
-    ).to(device)
-
-    if config.checkpoint != '':
-        model_data = torch.load(config.checkpoint)
-        model.load_state_dict(model_data['model'])
 
     # Initialize BCELoss function
     if config.loss_function == 'mse':
