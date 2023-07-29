@@ -1,3 +1,6 @@
+![Alt text](sun.jpg)
+
+
 # irradiance-forecast
 This repo contains the code to forecast EUV irradiance 'Stan' bands from solar images up to six days in advance.
 
