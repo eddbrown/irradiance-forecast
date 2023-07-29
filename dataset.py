@@ -9,6 +9,18 @@ from sklearn.preprocessing import QuantileTransformer, MinMaxScaler
 from multiprocessing import cpu_count, Pool
 import tqdm
 
+POSSIBLE_CHANNELS = [
+    '0094',
+    '0131',
+    '0171',
+    '0193',
+    '0211',
+    '0304',
+    '0335',
+    '1600',
+    '1700',
+]
+
 class CustomScaler():
     def __init__(self):
         self.min_max_scaler = MinMaxScaler()
@@ -107,7 +119,7 @@ class IrradianceDataset(Dataset):
         if image_date not in self.irradiance_data.index:
             return False, date
         
-        for channel in self.channels:
+        for channel in POSSIBLE_CHANNELS:
             image_file_name = self.get_file_name(image_date, channel)
             if not os.path.exists(image_file_name):
                 return False, date
@@ -128,18 +140,37 @@ class IrradianceDataset(Dataset):
         # 20th percentile because we want to make most of the off-disk pixels the same as they are likely not relevant.
         if channel == '0094':
             return self.log_linear_scale(image, 0.52, 781.95)
+        elif channel == '0131':
+            return self.log_linear_scale(image, 1.25, 1482.33)
+        elif channel == '0171':
+            return self.log_linear_scale(image, 30.7, 13941.28)
+        elif channel == '0193':
+            return self.log_linear_scale(image, 57.57, 20292.16)
         elif channel == '0211':
             return self.log_linear_scale(image, 18.02, 9264.69)
+        elif channel == '0304':
+            return self.log_linear_scale(image, 6.43, 7293.93)
         elif channel == '0335':
             return self.log_linear_scale(image, 2.1, 946.49)
         elif channel == '1600':
             return self.log_linear_scale(image, 5.04, 1367.08)
+        elif channel == '1700':
+            return self.log_linear_scale(image, 60.4 , 12004.73)
+        elif channel == 'bx':
+            return self.linear_scale(image, -3000, 3000)
+        elif channel == 'by':
+            return self.linear_scale(image, -3000, 3000)
+        elif channel == 'bz':
+            return self.linear_scale(image, -3000, 3000)
         return image
     
     def log_linear_scale(self, image, min_, max_):
         image = np.log(np.clip(image, min_, max_))
         image = (image - np.log(min_))/(np.log(max_) - np.log(min_))
         return image
+    
+    def linear_scale(self, image, min_, max_):
+        image = (image - min_)/(max_ - min_)
         
     def get_file_name(self, date, channel):
         year = date.year
@@ -147,5 +178,8 @@ class IrradianceDataset(Dataset):
         day = str(date.day).zfill(2)
         hour = str(date.hour).zfill(2)
         minute = str(date.minute).zfill(2)
-        file_path = f'{self.image_folder}/{year}/{month}/{day}/AIA{year}{month}{day}_{hour}{minute}_{channel}.npz'
+        if channel[0] == 'b':
+            file_path = f'{self.image_folder}/{year}/{month}/{day}/HMI{year}{month}{day}_{hour}{minute}_{channel}.npz'
+        else:
+            file_path = f'{self.image_folder}/{year}/{month}/{day}/AIA{year}{month}{day}_{hour}{minute}_{channel}.npz'
         return file_path
